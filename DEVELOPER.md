@@ -10,4 +10,7 @@
 
 **Patch**  
 - Bugfixes without breaking existing features
-- Typos
+- Typos in UI
+
+**No Change**  
+- Typo in docs
