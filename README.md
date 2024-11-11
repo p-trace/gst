@@ -11,7 +11,7 @@
 
 ## What's going on
 Ever lost the overview of your projects? Or even forgot, that a projects still exists?  
-GST creates a simple overview, which projects contains  
+GST creates a simple overview, which projects contains:  
 - untracked/tracked files,
 - unstaged/staged files,
 - and ahead/behind commits.
@@ -25,7 +25,7 @@ $ gst
 [→◎] - pkill-9-vim
 ```
 > [!NOTE]
-> Per default, it will omit projects, that are up to date.
+> Per default, it will omit projects, that are up-to-date.
 > You can display them by passing `-v`
 
 ### Further Details
@@ -43,7 +43,7 @@ This is how it works:
 +---------+-------+---------------------------------------+
 | Unicode | ASCII | Meaning                               |
 |---------|-------|---------------------------------------|
-|    ✓    |   +   | Project up to date                    |
+|    ✓    |   +   | Project up-to-date                    |
 |    →    |   ->  | Ahead origin                          |
 |    ←    |   <-  | Behind origin                         |
 |    ◎    |   *   | Unstaged/Untracked files (pre commit) |
@@ -62,7 +62,7 @@ Options:
       --paths <PATHS>                Config: Specify multiple paths, delimited by a space.
                                          Example: `gst --paths "/home/usr/pro1 /home/usr/pro2 /home/usr/pro3"`
   -v, --verbose...                   Displays more information:
-                                         `-v`: Show projects, that are up to date.
+                                         `-v`: Show projects, that are up-to-date.
                                          `-vv`: Additionally, show the absolute path per project.
   -r, --remove-path <REMOVE_PATH>    Config: Removes a single project path from the configuration
       --purge-paths                  Config: Removes all project paths from the configuration
@@ -88,7 +88,7 @@ It will be stored at:
 So make sure, that the `.config` directory exists.  
 
 ## Examples
-Run GST inside the current directory, and output up to date projects also  
+Run GST inside the current directory, and output up-to-date projects also  
 ```bash
 gst -cv
 ```
@@ -106,6 +106,8 @@ gst --paths "/home/usr/myprojects /home/usr/myotherprojects"
 ## ASCII Mode
 If your ancient terminal cannot display unicode, or if you want to use this program 
 inside an pipeline, you can switch to ASCII characters.  
+
+`gst --ascii-mode true`  
 
 ## Dependencies
 - clap
