@@ -236,20 +236,27 @@ fn check_git_client() -> () {
 }
 
 fn check_config_version(config: &config::Config) -> () {
-    let current_version = option_env!("CARGO_PKG_VERSION").unwrap().to_string();
-    let keyword = String::from("UNKNOWN");
+    let current_version = option_env!("CARGO_PKG_VERSION").unwrap();
+    let keyword: &'static str = "UNKNOWN";
     let version_from_config = &config.version;
 
-    if *version_from_config == current_version {
-        return;
-    } else if *version_from_config == keyword {
+    if *version_from_config == keyword {
         eprintln!("The configuration file in `$HOME/.config/gst/gst.json` contains an \
                   unknown version. Consider to delete the config and run this program \
                   again, to build a new one.");
         exit(1);
+    }
+
+    let current_version_coll: Vec<_> = current_version.split(".").collect();
+    let current_major = current_version_coll.first();
+    let config_version_coll: Vec<_> = version_from_config.split(".").collect();
+    let config_major = config_version_coll.first();
+
+    if config_major == current_major {
+        return;
     } else {
-        eprintln!("The configuration file in `$HOME/.config/gst/gst.json` is too old. \
-                  Please remove it, and run this programm again.");
+        eprintln!("The configuration version in `$HOME/.config/gst/gst.json` diverged. \
+                  Please remove the config file, and run this programm again.");
         exit(1);
     }
 }
