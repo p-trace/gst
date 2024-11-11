@@ -27,6 +27,16 @@ $ gst
 > Per default, it will omit projects, that are up to date.
 > You can display them by passing `-v`
 
+### Further Details
+This is how it works:  
+1. Read args & evaluate
+2. Write changes into config, if any
+3. Read config
+4. Traverse through all given paths (per default 5 levels deep)
+5. If `.git` dir found -> `git --git-dir {dir} fetch`
+6. If no error -> `git -C {dir} status -b --porcelain`
+7. Output result to stdout/stderr
+
 ## Legend
 ```text
 +---------+-------+---------------------------------------+

@@ -15,7 +15,7 @@ pub struct CheckGitProjects<'a> {
     pub indicators: Indicators,
     pub terminal_display: TerminalDisplay,
     pub project_state: InformationHandler,
-    found_git_dir: Information,
+    git_dir_state: Information,
     rec_counter: i8,
     max_depth: i8,
     max_height: i8,
@@ -30,7 +30,7 @@ impl <'a>CheckGitProjects<'a> {
             indicators: Indicators::new(config.ascii_mode),
             terminal_display: TerminalDisplay::new(verbose_mode),
             project_state: InformationHandler::new(),
-            found_git_dir: Information::NotFoundGitDir,
+            git_dir_state: Information::NotFoundGitDir,
             rec_counter: 1,
 
             max_depth: max_search_depth,
@@ -57,10 +57,10 @@ impl <'a>CheckGitProjects<'a> {
 
         for project in projects {
             self.rec_counter = 1;
-            self.found_git_dir = Information::NotFoundGitDir;
+            self.git_dir_state = Information::NotFoundGitDir;
             self.traversal(&project);
 
-            match self.found_git_dir {
+            match self.git_dir_state {
                 Information::NotFoundGitDir => {
                     let msg_cannot_find_git_dirs: &'static str = "Cannot find any `.git` directory";
                     self.terminal_display.render_path_err(&msg_cannot_find_git_dirs,
@@ -74,7 +74,7 @@ impl <'a>CheckGitProjects<'a> {
             }
         }
 
-        match self.found_git_dir {
+        match self.git_dir_state {
             Information::NotFoundGitDir => {
                 return self;
             }
@@ -88,18 +88,18 @@ impl <'a>CheckGitProjects<'a> {
             Information::AllGreen => {
                 let msg_projects_ok: &'static str = "All projects are up to date";
                 self.terminal_display.render_ok_msg(&msg_projects_ok, &self.indicators)
-            },
+            }
+            Information::CannotFetchRemote => (),
             _ => ()
         }
         self
     }
 
-    /// path counts from 0
-    /// Depth is inclusive
-    /// TODO: doc
+    // path counts from 0
+    // Depth is inclusive
     fn traversal(&mut self, path: &PathBuf) -> () {
         if !path.is_dir() {
-            self.found_git_dir = Information::NotValidPath;
+            self.git_dir_state = Information::NotValidPath;
             return;
         }
 
@@ -137,7 +137,7 @@ impl <'a>CheckGitProjects<'a> {
                         self.terminal_display.render_err(&e.to_string(), Some(&self.indicators), Some(&path));
                     }
                 };
-                self.found_git_dir = Information::FoundGitDir;
+                self.git_dir_state = Information::FoundGitDir;
             }
 
             if path.is_dir() {
@@ -148,7 +148,7 @@ impl <'a>CheckGitProjects<'a> {
         self.rec_counter -= 1;
     }
 
-    fn git_status(&self, project_path: &PathBuf) -> Result<String, String> {
+    fn git_status(&mut self, project_path: &PathBuf) -> Result<String, String> {
         let project_path = project_path.parent();
         let parent_path = match project_path {
             Some(v) => v.to_str().unwrap(),
@@ -159,18 +159,30 @@ impl <'a>CheckGitProjects<'a> {
             return Err("Could not determine path".to_string());
         }
 
-        let git_output = Command::new("git")
+        let git_fetch = Command::new("git")
+            .args(["--git-dir", format!("{}/.git", parent_path).as_str(), "fetch"])
+            .output()
+            .unwrap();
+
+        let fetch_err = String::from_utf8(git_fetch.stderr).unwrap();
+
+        if fetch_err.contains("fatal") {
+            self.project_state.info_state = Information::CannotFetchRemote;
+            return Err(fetch_err);
+        }
+
+        let git_status = Command::new("git")
             .args(["-C", parent_path, "status", "-b", "--porcelain"])
             .output()
             .unwrap();
 
-        let ok = String::from_utf8(git_output.stdout).unwrap();
-        let err = String::from_utf8(git_output.stderr).unwrap();
+        let status_ok = String::from_utf8(git_status.stdout).unwrap();
+        let status_err = String::from_utf8(git_status.stderr).unwrap();
 
-        if !err.is_empty() {
-            return Err(err);
+        if !status_err.is_empty() {
+            return Err(status_err);
         }
-        Ok(ok)
+        Ok(status_ok)
     }
 }
 
@@ -180,6 +192,7 @@ pub enum Information {
     FoundGitDir,
     NotFoundGitDir,
     NotValidPath,
+    CannotFetchRemote,
 }
 
 pub struct InformationHandler {
