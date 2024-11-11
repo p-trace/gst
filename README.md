@@ -8,7 +8,7 @@
 **Windows??** - ... yes  
 
 
-## Whats going on
+## What's going on
 Ever lost the overview of your projects? Or even forgot, that a projects still exists?  
 GST creates a simple overview, which projects contains  
 - untracked/tracked files,
