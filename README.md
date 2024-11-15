@@ -1,6 +1,6 @@
 # GST (Status for Git)
 ## tl;dr
-**What:** GST traverses through Git projects, and displays their current `git status` as 
+**What:** GST traverses through your local Git projects, and displays their current `git status` as 
 [symbols](#Legend).  
 **[Build](#Build):** `cargo build --release`  
 **[Usage](#Usage):** `gst -h` or see [examples](#Examples)  
