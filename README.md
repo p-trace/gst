@@ -119,7 +119,9 @@ Linux/Windows:
 `cargo build --release` or `make`  
 
 Linux (static with musl, x86_64):  
-Hint: you'll need `rustup target add x86_64-unknown-linux-musl`  
+> [!NOTE]
+> You'll need `rustup target add x86_64-unknown-linux-musl`
+
 `cargo build --release --target x86_64-unknown-linux-musl`  
 or  
 `make build-linux-static`
